@@ -3,6 +3,8 @@ const username = "tahobbit11";
 const ul = document.querySelector(".repo-list");
 const repos = document.querySelector(".repos");
 const repoData = document.querySelector(".repo-data");
+const viewReposButton = document.querySelector(".view-repos");
+const filterInput = document.querySelector(".filter-repos");
 
 const githubProfile = async function(){
     const userInfo = await fetch(`https://api.github.com/users/${username}`);
@@ -37,6 +39,7 @@ const githubRepo = async function(){
 };
 
 const displayRepo = function(repos){
+    filterInput.classList.remove("hide");
     for(const repo of repos){
         const repoItem = document.createElement("li");
         repoItem.classList.add("repo");
@@ -48,7 +51,7 @@ const displayRepo = function(repos){
 ul.addEventListener("click",function(e){
     if(e.target.matches("h3")) {
         const repoName = e.target.innerText;
-        githubRepoInfo();
+        githubRepoInfo(repoName);
     }
 });
 
@@ -70,16 +73,38 @@ const githubRepoInfo = async function(repoName){
 }
 
 const displayRepoSpecific = function(repoSpecific, languages){
+    viewReposButton.classList.remove("hide");
     repoData.innerHTML = "";
     repoData.classList.remove("hide");
     repos.classList.add("hide");
     const div = document.createElement("div");
     div.innerHTML = `
-    <h3>Name: ${repoInfo.name}</h3>
-    <p>Description: ${repoInfo.description}</p>
-    <p>Default Branch: ${repoInfo.default_branch}</p>
+    <h3>Name: ${repoSpecific.name}</h3>
+    <p>Description: ${repoSpecific.description}</p>
+    <p>Default Branch: ${repoSpecific.default_branch}</p>
     <p>Languages: ${languages.join(", ")}</p>
-    <a class="visit" href="${repoInfo.html_url}" target="_blank" rel="noreferrer noopener">View Repo on GitHub!</a>
+    <a class="visit" href="${repoSpecific.html_url}" target="_blank" rel="noreferrer noopener">View Repo on GitHub!</a>
     `;
     repoData.append(div);
 }
+
+viewReposButton.addEventListener("click",function(){
+    repos.classList.remove("hide");
+    repoData.classList.add("hide");
+    viewReposButton.classList.add("hide");
+});
+
+filterInput.addEventListener("input", function(e){
+    const searchText = e.target.value;
+    const repos = document.querySelectorAll(".repo");
+    const searchLowerText = searchText.toLowerCase();
+
+    for (const repo of repos){
+        const repoLowerText = repo.innerText.toLowerCase();
+        if(repoLowerText.includes(searchLowerText)){
+            repo.classList.remove("hide");
+        } else {
+            repo.classList.add("hide");
+        }
+    }
+});
